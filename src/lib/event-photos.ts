@@ -1,11 +1,12 @@
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import { eventPhotos, events } from "@/db/schema";
 import { mediaUrl } from "@/lib/media";
 
 export type EventPhotoItem = {
   id: string;
-  eventId: string;
+  eventId: string | null;
+  customEventName: string | null;
   publicId: string;
   url?: string;
   caption: string;
@@ -13,16 +14,18 @@ export type EventPhotoItem = {
 };
 
 export type GalleryPhotoItem = EventPhotoItem & {
-  eventSlug: string;
+  eventSlug: string | null;
   eventTitle: string;
-  eventStartsAt: string;
+  eventStartsAt: string | null;
+  galleryKey: string;
 };
 
 export type GalleryEventSection = {
-  eventId: string;
-  eventSlug: string;
+  galleryKey: string;
+  eventId: string | null;
+  eventSlug: string | null;
   eventTitle: string;
-  eventStartsAt: string;
+  eventStartsAt: string | null;
   photos: GalleryPhotoItem[];
 };
 
@@ -33,12 +36,16 @@ export function groupGalleryByEvent(
   const sections = new Map<string, GalleryEventSection>();
 
   for (const photo of photos) {
-    const existing = sections.get(photo.eventId);
+    const galleryKey = photo.eventId
+      ? `event:${photo.eventId}`
+      : `custom:${photo.customEventName ?? "untitled"}`;
+    const existing = sections.get(galleryKey);
     if (existing) {
       existing.photos.push(photo);
       continue;
     }
-    sections.set(photo.eventId, {
+    sections.set(galleryKey, {
+      galleryKey,
       eventId: photo.eventId,
       eventSlug: photo.eventSlug,
       eventTitle: photo.eventTitle,
@@ -49,7 +56,8 @@ export function groupGalleryByEvent(
 
   return [...sections.values()].sort(
     (a, b) =>
-      new Date(b.eventStartsAt).getTime() - new Date(a.eventStartsAt).getTime(),
+      (b.eventStartsAt ? new Date(b.eventStartsAt).getTime() : 0) -
+      (a.eventStartsAt ? new Date(a.eventStartsAt).getTime() : 0),
   );
 }
 
@@ -57,6 +65,7 @@ function mapRow(row: typeof eventPhotos.$inferSelect): EventPhotoItem {
   return {
     id: row.id,
     eventId: row.eventId,
+    customEventName: row.customEventName,
     publicId: row.publicId,
     url: mediaUrl(row.publicId),
     caption: row.caption,
@@ -82,45 +91,42 @@ export async function listAdminGalleryPhotos(): Promise<GalleryPhotoItem[]> {
   const db = getDb();
   if (!db) return [];
 
-  const allEvents = await db
-    .select({
-      id: events.id,
-      slug: events.slug,
-      title: events.title,
-      startsAt: events.startsAt,
-    })
-    .from(events)
-    .orderBy(desc(events.startsAt));
-
-  if (allEvents.length === 0) return [];
-
-  const eventMap = new Map(allEvents.map((e) => [e.id, e]));
   const rows = await db
     .select()
     .from(eventPhotos)
-    .where(
-      inArray(
-        eventPhotos.eventId,
-        allEvents.map((e) => e.id),
-      ),
-    )
     .orderBy(asc(eventPhotos.sortOrder));
+
+  const eventIds = [...new Set(rows.flatMap((row) => row.eventId ?? []))];
+  const allEvents = eventIds.length
+    ? await db
+        .select({
+          id: events.id,
+          slug: events.slug,
+          title: events.title,
+          startsAt: events.startsAt,
+        })
+        .from(events)
+        .where(inArray(events.id, eventIds))
+    : [];
+  const eventMap = new Map(allEvents.map((event) => [event.id, event]));
 
   const items: GalleryPhotoItem[] = [];
   for (const row of rows) {
-    const event = eventMap.get(row.eventId);
-    if (!event) continue;
+    const event = row.eventId ? eventMap.get(row.eventId) : undefined;
+    if (!event && !row.customEventName) continue;
     items.push({
       ...mapRow(row),
-      eventSlug: event.slug,
-      eventTitle: event.title,
-      eventStartsAt: event.startsAt.toISOString(),
+      eventSlug: event?.slug ?? null,
+      eventTitle: event?.title ?? row.customEventName!,
+      eventStartsAt: event?.startsAt.toISOString() ?? null,
+      galleryKey: event ? `event:${event.id}` : `custom:${row.customEventName}`,
     });
   }
 
   items.sort((a, b) => {
     const byEvent =
-      new Date(b.eventStartsAt).getTime() - new Date(a.eventStartsAt).getTime();
+      (b.eventStartsAt ? new Date(b.eventStartsAt).getTime() : 0) -
+      (a.eventStartsAt ? new Date(a.eventStartsAt).getTime() : 0);
     if (byEvent !== 0) return byEvent;
     return a.sortOrder - b.sortOrder;
   });
@@ -133,47 +139,43 @@ export async function listGalleryPhotos(): Promise<GalleryPhotoItem[]> {
   const db = getDb();
   if (!db) return [];
 
-  const publicEvents = await db
-    .select({
-      id: events.id,
-      slug: events.slug,
-      title: events.title,
-      startsAt: events.startsAt,
-    })
-    .from(events)
-    .where(inArray(events.status, ["past", "published"]))
-    .orderBy(desc(events.startsAt));
-
-  if (publicEvents.length === 0) return [];
-
-  const eventMap = new Map(publicEvents.map((e) => [e.id, e]));
   const rows = await db
-    .select()
+    .select({
+      photo: eventPhotos,
+      event: events,
+    })
     .from(eventPhotos)
+    .leftJoin(events, eq(eventPhotos.eventId, events.id))
     .where(
-      inArray(
-        eventPhotos.eventId,
-        publicEvents.map((e) => e.id),
+      or(
+        isNull(eventPhotos.eventId),
+        inArray(events.status, ["past", "published"]),
       ),
     )
-    .orderBy(asc(eventPhotos.sortOrder));
+    .orderBy(desc(events.startsAt), asc(eventPhotos.sortOrder));
 
   const items: GalleryPhotoItem[] = [];
   for (const row of rows) {
-    const event = eventMap.get(row.eventId);
-    if (!event) continue;
+    const event = row.event;
+    const photo = row.photo;
+    if (!event && !photo.customEventName) continue;
+    const galleryKey = event
+      ? `event:${event.id}`
+      : `custom:${photo.customEventName}`;
     items.push({
-      ...mapRow(row),
-      eventSlug: event.slug,
-      eventTitle: event.title,
-      eventStartsAt: event.startsAt.toISOString(),
+      ...mapRow(photo),
+      eventSlug: event?.slug ?? null,
+      eventTitle: event?.title ?? photo.customEventName!,
+      eventStartsAt: event?.startsAt.toISOString() ?? null,
+      galleryKey,
     });
   }
 
   // Keep photos grouped by event order (newest event first).
   items.sort((a, b) => {
     const byEvent =
-      new Date(b.eventStartsAt).getTime() - new Date(a.eventStartsAt).getTime();
+      (b.eventStartsAt ? new Date(b.eventStartsAt).getTime() : 0) -
+      (a.eventStartsAt ? new Date(a.eventStartsAt).getTime() : 0);
     if (byEvent !== 0) return byEvent;
     return a.sortOrder - b.sortOrder;
   });

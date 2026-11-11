@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { connection } from "next/server";
 import { Container } from "@/components/ui/Container";
 import { GalleryAdminForm } from "@/components/admin/GalleryAdminForm";
 import { isDatabaseConfigured } from "@/db";
@@ -7,7 +9,9 @@ import { isEventsDbReady, listAdminEvents } from "@/lib/events";
 
 export const metadata: Metadata = { title: "Admin · Gallery" };
 
-export default async function AdminGalleryPage() {
+async function AdminGalleryContent() {
+  await connection();
+
   const dbReady = isDatabaseConfigured() && isEventsDbReady();
   const events = dbReady ? await listAdminEvents() : [];
   const photos = dbReady ? await listAdminGalleryPhotos() : [];
@@ -42,5 +46,19 @@ export default async function AdminGalleryPage() {
         </div>
       )}
     </Container>
+  );
+}
+
+export default function AdminGalleryPage() {
+  return (
+    <Suspense
+      fallback={
+        <Container className="py-10 sm:py-12">
+          <p className="text-sm text-mute">Loading gallery…</p>
+        </Container>
+      }
+    >
+      <AdminGalleryContent />
+    </Suspense>
   );
 }

@@ -37,26 +37,34 @@ async function GallerySections() {
   return (
     <div className="space-y-16 sm:space-y-20">
       {sections.map((section, sectionIndex) => (
-        <Reveal key={section.eventId} y={14} delay={0.04 * Math.min(sectionIndex, 6)}>
-          <section aria-labelledby={`gallery-event-${section.eventId}`}>
+        <Reveal key={section.galleryKey} y={14} delay={0.04 * Math.min(sectionIndex, 6)}>
+          <section aria-labelledby={`gallery-event-${section.galleryKey}`}>
             <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
               <div>
-                <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-mute">
-                  {formatDate(section.eventStartsAt)}
-                </p>
+                {section.eventStartsAt ? (
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-mute">
+                    {formatDate(section.eventStartsAt)}
+                  </p>
+                ) : (
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-mute">
+                    Gallery album
+                  </p>
+                )}
                 <h2
-                  id={`gallery-event-${section.eventId}`}
+                  id={`gallery-event-${section.galleryKey}`}
                   className="mt-1 font-display text-2xl font-semibold tracking-tight text-ink"
                 >
                   {section.eventTitle}
                 </h2>
               </div>
-              <Link
-                href={`/events/${section.eventSlug}`}
-                className="text-sm font-medium text-ember hover:underline"
-              >
-                Event page
-              </Link>
+              {section.eventSlug ? (
+                <Link
+                  href={`/events/${section.eventSlug}`}
+                  className="text-sm font-medium text-ember hover:underline"
+                >
+                  Event page
+                </Link>
+              ) : null}
             </div>
 
             <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

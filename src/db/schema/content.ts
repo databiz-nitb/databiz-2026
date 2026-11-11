@@ -249,8 +249,8 @@ export const sponsors = pgTable("sponsors", {
 export const eventPhotos = pgTable("event_photos", {
   id: text("id").primaryKey(),
   eventId: text("event_id")
-    .notNull()
     .references(() => events.id, { onDelete: "cascade" }),
+  customEventName: text("custom_event_name"),
   publicId: text("public_id").notNull(),
   caption: text("caption").notNull().default(""),
   sortOrder: integer("sort_order").notNull().default(0),
