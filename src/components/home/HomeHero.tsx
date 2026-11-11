@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import { site } from "@/content/site";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -27,8 +28,20 @@ export function HomeHero({ children }: Props) {
           <p className="eyebrow">
             {site.college}
           </p>
-          <h1 className="mt-5 font-display text-[clamp(3.5rem,11vw,7.5rem)] font-semibold leading-[0.9] tracking-[-0.06em] text-ink">
-            {site.name}
+          <h1 className="mt-5 flex flex-col items-start gap-3 font-display text-[clamp(3.5rem,11vw,7.5rem)] font-semibold leading-[0.9] tracking-[-0.06em] sm:gap-5">
+            <Image
+              src="/icons/svg/databiz-logo.svg"
+              alt=""
+              aria-hidden="true"
+              width={120}
+              height={120}
+              className="size-[0.9em] shrink-0"
+              priority
+            />
+            <span>
+              <span className="text-ember">Data</span>
+              <span className="text-ink">Biz</span>
+            </span>
           </h1>
           <p className="mt-4 font-serif text-xl leading-snug text-ink-soft sm:text-2xl text-balance">
             {site.line}

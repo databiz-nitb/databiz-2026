@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 const impact = [
   { value: "650+", label: "Acre campus" },
   { value: "5", label: "Sponsor tiers" },
-  { value: "2", label: "Flagship data contests" },
-  { value: "1", label: "Industry podcast" },
+  { value: "3", label: "Flagship data contests" },
+  { value: "2", label: "Industry podcast" },
 ] as const;
 
 export default function BrochurePage() {

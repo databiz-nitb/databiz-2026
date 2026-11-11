@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Sora, Literata, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
@@ -33,6 +33,14 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description: site.heroSupport,
+  icons: {
+    icon: [
+      { url: "/icons/svg/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon.ico", sizes: "48x48" },
+    ],
+    apple: "/icons/png/apple-touch-icon.png",
+  },
+  manifest: "/icons/site.webmanifest",
 
   verification: {
     google: "KK8Zf2ceQnbaf9yI_slnFNn-WLHnfqX2dpnMgFTzIe8",
@@ -46,6 +54,10 @@ export const metadata: Metadata = {
     locale: "en_IN",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0C0E13",
 };
 
 export default function RootLayout({

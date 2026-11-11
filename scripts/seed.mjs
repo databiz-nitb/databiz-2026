@@ -31,8 +31,6 @@ Hybrid algorithms (variational circuits, quantum kernels) show promise in papers
 ## What students should take away
 
 Learn the classical foundations first. Treat QML as an advanced elective: understand the claims, read the caveats, and keep an eye on hardware roadmaps. When a workflow is ready for real-world data, the evaluation will look like any other ML pitch — holdout sets, cost, and honesty about failure modes.
-
-*Republished from the DataBiz blog. Source: https://www.databiz.in/blogs/6962b5113c528f3442e5e8d4*
 `;
 
 const FAQ = [

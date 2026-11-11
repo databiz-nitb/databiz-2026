@@ -12,6 +12,10 @@ export type PostItem = Post & {
   coverUrl?: string;
 };
 
+const quantumPostSlug = "quantum-machine-learning-real-world-data";
+const quantumPostSourceNote =
+  "*Republished from the DataBiz blog. Source: https://www.databiz.in/blogs/6962b5113c528f3442e5e8d4*";
+
 function withSeedIds(list: Post[]): PostItem[] {
   return list.map((post) => ({
     ...post,
@@ -25,7 +29,10 @@ function mapRow(row: typeof postsTable.$inferSelect): PostItem {
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt,
-    body: row.body,
+    body:
+      row.slug === quantumPostSlug
+        ? row.body.replace(quantumPostSourceNote, "").trim()
+        : row.body,
     author: row.authorName || "DataBiz",
     tags: row.tags ?? [],
     publishedAt: (row.publishedAt ?? row.createdAt).toISOString(),

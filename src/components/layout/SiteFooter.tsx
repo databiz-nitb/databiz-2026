@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { footerCols, site } from "@/content/site";
 import { Container } from "@/components/ui/Container";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
@@ -57,9 +58,20 @@ export function SiteFooter() {
 
         <div className="mt-14 flex flex-col gap-4 border-t border-[color:var(--on-void-line)] pt-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="font-display text-xl font-semibold tracking-tight text-[color:var(--on-void)]">
-              {site.name}
-            </p>
+            <div className="flex flex-col items-start gap-2">
+              <Image
+                src="/icons/svg/databiz-logo.svg"
+                alt=""
+                aria-hidden="true"
+                width={32}
+                height={32}
+                className="size-8"
+              />
+              <p className="font-display text-xl font-semibold tracking-tight">
+                <span className="text-ember">Data</span>
+                <span className="text-[color:var(--on-void)]">Biz</span>
+              </p>
+            </div>
             <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[color:var(--on-void-mute)]">
               {site.line} · {site.college}
             </p>

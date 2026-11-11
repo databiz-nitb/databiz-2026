@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { navMore, navPrimary, site } from "@/content/site";
+import { navMore, navPrimary } from "@/content/site";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -46,14 +47,24 @@ export function SiteHeader() {
       )}
     >
       <div className="mx-auto flex h-[var(--header-h)] max-w-[var(--measure)] items-center justify-between gap-6 px-[var(--gutter)]">
-        <Link href="/" className="group flex items-baseline gap-2">
-          <span className="font-display text-lg font-semibold tracking-tight text-ink sm:text-xl">
-            {site.name}
+        <Link href="/" className="group flex items-center gap-2">
+          <Image
+            src="/icons/svg/databiz-logo.svg"
+            alt=""
+            aria-hidden="true"
+            width={36}
+            height={36}
+            className="size-9 shrink-0"
+            priority
+          />
+          <span className="font-display text-lg font-semibold tracking-tight sm:text-xl">
+            <span className="text-ember">Data</span>
+            <span className="text-ink">Biz</span>
           </span>
-          <span className="hidden text-ember sm:inline" aria-hidden>
+          <span className="hidden self-center text-ember sm:inline" aria-hidden>
             ·
           </span>
-          <span className="hidden font-mono text-[0.62rem] uppercase tracking-[0.16em] text-mute md:inline">
+          <span className="hidden self-center font-mono text-[0.62rem] uppercase tracking-[0.16em] text-mute md:inline">
             MANIT
           </span>
         </Link>

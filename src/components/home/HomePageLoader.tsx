@@ -40,7 +40,8 @@ export function HomePageLoader() {
 
         <p className="eyebrow mt-6">{site.college}</p>
         <p className="mt-2 font-display text-4xl font-semibold tracking-[-0.06em] text-ink sm:text-5xl">
-          {site.name}
+          <span className="text-ember">Data</span>
+          <span className="text-ink">Biz</span>
         </p>
         <p className="mt-2 text-sm text-mute" role="status" aria-live="polite">
           Connecting the dots…
