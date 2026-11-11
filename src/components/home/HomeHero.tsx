@@ -4,7 +4,6 @@ import { ArrowUpRight } from "lucide-react";
 import { site } from "@/content/site";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { NetworkFieldLazy } from "@/components/three/NetworkFieldLazy";
 
 type Props = {
   /** Streamed in after the hero paints — usually the open-drive note. */
@@ -23,10 +22,6 @@ export function HomeHero({ children }: Props) {
         className="pointer-events-none absolute bottom-10 left-1/3 h-48 w-48 rounded-full blur-3xl"
         style={{ background: "var(--glow-mint)" }}
       />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-full max-w-3xl opacity-90 md:opacity-100">
-        <NetworkFieldLazy />
-      </div>
-
       <Container className="relative z-10 flex min-h-[min(100svh,56rem)] flex-col justify-end pb-16 pt-28 sm:pb-20">
         <div className="max-w-2xl animate-rise">
           <p className="eyebrow">

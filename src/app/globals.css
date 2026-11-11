@@ -436,6 +436,98 @@
     }
   }
 
+  @keyframes home-loader-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes home-loader-pulse {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(0.82);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.18);
+    }
+  }
+
+  @keyframes home-loader-orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes home-loader-progress {
+    0% {
+      transform: translateX(-120%);
+    }
+    55%,
+    100% {
+      transform: translateX(240%);
+    }
+  }
+
+  .home-loader-network {
+    position: relative;
+    width: min(11rem, 55vw);
+    aspect-ratio: 4 / 3;
+  }
+
+  .home-loader-path {
+    stroke: color-mix(in srgb, var(--ink-soft) 48%, transparent);
+    stroke-width: 1.5;
+    stroke-dasharray: 240;
+    stroke-dashoffset: 240;
+    animation: home-loader-draw 1.8s ease-in-out infinite alternate;
+  }
+
+  .home-loader-node {
+    fill: var(--ember);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: home-loader-pulse 1.6s ease-in-out infinite;
+  }
+
+  .home-loader-node-b,
+  .home-loader-node-d {
+    animation-delay: 0.35s;
+  }
+
+  .home-loader-node-c {
+    animation-delay: 0.7s;
+  }
+
+  .home-loader-node-e {
+    animation-delay: 1.05s;
+  }
+
+  .home-loader-orbit {
+    position: absolute;
+    inset: 12%;
+    border: 1px solid color-mix(in srgb, var(--ember) 20%, transparent);
+    border-left-color: var(--ember);
+    border-radius: 50%;
+    animation: home-loader-orbit 5s linear infinite;
+  }
+
+  .home-loader-track {
+    width: 8rem;
+    height: 2px;
+    overflow: hidden;
+    background: var(--line);
+  }
+
+  .home-loader-track span {
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: var(--ember);
+    animation: home-loader-progress 1.4s ease-in-out infinite;
+  }
+
   .animate-rise {
     animation: rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
   }

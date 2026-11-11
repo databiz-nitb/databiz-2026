@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import * as THREE from "three";
 import { useTheme } from "next-themes";
-import { NetworkFieldPlaceholder } from "./NetworkFieldPlaceholder";
 
 function Graph({ ember, ink }: { ember: string; ink: string }) {
   const group = useRef<THREE.Group>(null);
@@ -88,27 +87,22 @@ function Graph({ ember, ink }: { ember: string; ink: string }) {
 }
 
 export function NetworkField() {
-  const [ready, setReady] = useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const ember = isDark ? "#ff6b4a" : "#e8482e";
   const ink = isDark ? "#c8ccd4" : "#2c2e33";
 
   return (
-    <div className="absolute inset-0 -z-0">
-      <div className="absolute inset-0" aria-hidden>
-        <Canvas
-          dpr={[1, 1.75]}
-          camera={{ position: [0, 0, 4.2], fov: 42 }}
-          gl={{ antialias: true, alpha: true }}
-          style={{ background: "transparent" }}
-          onCreated={() => setReady(true)}
-        >
-          <ambientLight intensity={0.6} />
-          <Graph ember={ember} ink={ink} />
-        </Canvas>
-      </div>
-      {!ready && <NetworkFieldPlaceholder />}
+    <div className="absolute inset-0" aria-hidden>
+      <Canvas
+        dpr={[1, 1.75]}
+        camera={{ position: [0, 0, 4.2], fov: 42 }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ background: "transparent" }}
+      >
+        <ambientLight intensity={0.6} />
+        <Graph ember={ember} ink={ink} />
+      </Canvas>
     </div>
   );
 }
