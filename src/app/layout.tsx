@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Sora, Literata, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AmbientField } from "@/components/theme/AmbientField";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -79,6 +80,7 @@ export default function RootLayout({
           </Suspense>
           <main className="relative z-0 flex-1">{children}</main>
           <SiteFooter />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
