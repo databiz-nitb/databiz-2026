@@ -33,6 +33,11 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description: site.heroSupport,
+
+  verification: {
+    google: "KK8Zf2ceQnbaf9yI_slnFNn-WLHnfqX2dpnMgFTzIe8",
+  },
+
   openGraph: {
     title: `${site.name} — ${site.line}`,
     description: site.heroSupport,
