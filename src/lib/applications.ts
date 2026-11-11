@@ -341,8 +341,10 @@ export async function listAssignedApplications(interviewerId: string) {
       id: row.applicant.id,
       name: row.applicant.name,
       email: row.applicant.email,
+      rollNumber: row.applicant.rollNumber,
       year: row.applicant.year,
       branch: row.applicant.branch,
+      phone: row.applicant.phone,
     },
   }));
 }

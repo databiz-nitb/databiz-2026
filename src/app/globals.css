@@ -1089,3 +1089,164 @@
     }
   }
 }
+
+.data-export-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body > :not(.data-export-print) {
+    display: none !important;
+  }
+
+  .data-export-print {
+    position: relative !important;
+    display: block !important;
+    width: 100%;
+    height: auto !important;
+    color: #111;
+    background: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    visibility: visible !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .data-export-print * {
+    visibility: visible !important;
+  }
+
+  .data-export-print__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #ff6b45;
+  }
+
+  .data-export-print__brand img {
+    width: 0.55in;
+    height: 0.55in;
+  }
+
+  .data-export-print__wordmark {
+    margin: 0;
+    color: #111113;
+    font-size: 19pt;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  .data-export-print__wordmark span {
+    color: #e8482e;
+  }
+
+  .data-export-print__society {
+    margin: 0.15rem 0 0;
+    color: #555;
+    font-size: 8pt;
+  }
+
+  .data-export-print__url {
+    margin: 0 0 0 auto;
+    color: #666;
+    font-size: 8pt;
+  }
+
+  .data-export-print__report {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.8rem 0;
+  }
+
+  .data-export-print__eyebrow {
+    margin: 0 0 0.2rem;
+    color: #e8482e;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .data-export-print__report h1 {
+    margin: 0;
+    color: #111;
+    font-size: 17pt;
+    line-height: 1.2;
+  }
+
+  .data-export-print__count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    margin: 0;
+    color: #555;
+    font-size: 8pt;
+  }
+
+  .data-export-print__count strong {
+    color: #111;
+    font-size: 12pt;
+  }
+
+  .data-export-print table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .data-export-print thead {
+    display: table-header-group;
+  }
+
+  .data-export-print tr {
+    break-inside: avoid;
+  }
+
+  .data-export-print th,
+  .data-export-print td {
+    border: 1px solid #d5d5d5;
+    padding: 0.35rem 0.4rem;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    font-size: 8pt;
+  }
+
+  .data-export-print th {
+    color: #fff;
+    background: #25272c;
+    font-weight: 700;
+  }
+
+  .data-export-print tbody tr:nth-child(even) {
+    background: #f3f4f6;
+  }
+
+  .data-export-print__footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.6rem;
+    padding-top: 0.35rem;
+    border-top: 1px solid #d5d5d5;
+    color: #666;
+    font-size: 7pt;
+  }
+}
