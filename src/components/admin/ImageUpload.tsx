@@ -12,11 +12,12 @@ import { Field, inputClass } from "@/components/forms/Field";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
-type UploadedItem = { publicId: string; url: string };
+type UploadedItem = { publicId: string; url: string; caption?: string };
 
 type Props = {
   /** When set, stores the Cloudinary public id in a hidden form field. */
   name?: string;
+  inputId?: string;
   folder: CloudinaryFolder;
   label: string;
   hint?: string;
@@ -24,6 +25,8 @@ type Props = {
   defaultPreviewUrl?: string;
   /** Allow selecting and uploading several images at once. */
   multiple?: boolean;
+  /** Render a separate caption field for each selected image. */
+  perItemCaptionName?: string;
   /** Called after each successful upload. */
   onUploaded?: (result: UploadedItem) => void;
   clearLabel?: string;
@@ -34,12 +37,14 @@ type Props = {
 
 export function ImageUpload({
   name,
+  inputId,
   folder,
   label,
   hint = "Max 5 MB. JPG, PNG, or WebP.",
   defaultPublicId,
   defaultPreviewUrl,
   multiple = false,
+  perItemCaptionName,
   onUploaded,
   clearLabel = "Clear image",
   showPreview = true,
@@ -132,7 +137,7 @@ export function ImageUpload({
 
         const uploaded = await uploadOne(file, signed);
         if (multiple) {
-          nextItems.push(uploaded);
+          nextItems.push({ ...uploaded, caption: "" });
           setItems([...nextItems]);
         } else {
           nextItems.splice(0, nextItems.length, uploaded);
@@ -149,7 +154,7 @@ export function ImageUpload({
     }
   }
 
-  const fieldId = `${name ?? folder}-file`;
+  const fieldId = inputId ?? `${name ?? folder}-file`;
   const publicIdsJson = JSON.stringify(items.map((item) => item.publicId));
 
   return (
@@ -224,9 +229,9 @@ export function ImageUpload({
               : "space-y-3"
           }
         >
-          {items.map((item) =>
-            item.url ? (
-              <li key={item.publicId}>
+          {items.map((item, index) => (
+            <li key={`${item.publicId}-${index}`} className="space-y-2">
+              {item.url ? (
                 <Image
                   src={item.url}
                   alt=""
@@ -239,9 +244,29 @@ export function ImageUpload({
                       : "h-auto w-full max-w-md border border-line"
                   }
                 />
-              </li>
-            ) : null,
-          )}
+              ) : null}
+              {perItemCaptionName ? (
+                <label className="block space-y-1 text-sm text-steel">
+                  Caption for photo {index + 1}
+                  <input
+                    name={perItemCaptionName}
+                    value={item.caption ?? ""}
+                    maxLength={300}
+                    onChange={(event) => {
+                      setItems((current) =>
+                        current.map((currentItem, currentIndex) =>
+                          currentIndex === index
+                            ? { ...currentItem, caption: event.target.value }
+                            : currentItem,
+                        ),
+                      );
+                    }}
+                    className={inputClass}
+                  />
+                </label>
+              ) : null}
+            </li>
+          ))}
         </ul>
       ) : null}
     </div>

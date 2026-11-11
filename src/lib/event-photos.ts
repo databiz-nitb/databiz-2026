@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
+import { desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import { eventPhotos, events } from "@/db/schema";
 import { mediaUrl } from "@/lib/media";
@@ -17,6 +17,7 @@ export type GalleryPhotoItem = EventPhotoItem & {
   eventSlug: string | null;
   eventTitle: string;
   eventStartsAt: string | null;
+  eventStatus: string | null;
   galleryKey: string;
 };
 
@@ -29,7 +30,7 @@ export type GalleryEventSection = {
   photos: GalleryPhotoItem[];
 };
 
-/** Group flat gallery photos into event sections (newest event first). */
+/** Group photos into sections ordered by the most recently added photo. */
 export function groupGalleryByEvent(
   photos: GalleryPhotoItem[],
 ): GalleryEventSection[] {
@@ -54,10 +55,13 @@ export function groupGalleryByEvent(
     });
   }
 
-  return [...sections.values()].sort(
+  const groupedSections = [...sections.values()];
+  for (const section of groupedSections) {
+    section.photos.sort((a, b) => b.sortOrder - a.sortOrder);
+  }
+  return groupedSections.sort(
     (a, b) =>
-      (b.eventStartsAt ? new Date(b.eventStartsAt).getTime() : 0) -
-      (a.eventStartsAt ? new Date(a.eventStartsAt).getTime() : 0),
+      (b.photos[0]?.sortOrder ?? 0) - (a.photos[0]?.sortOrder ?? 0),
   );
 }
 
@@ -82,7 +86,7 @@ export async function listEventPhotos(
     .select()
     .from(eventPhotos)
     .where(eq(eventPhotos.eventId, eventId))
-    .orderBy(asc(eventPhotos.sortOrder));
+    .orderBy(desc(eventPhotos.sortOrder));
   return rows.map(mapRow);
 }
 
@@ -94,7 +98,7 @@ export async function listAdminGalleryPhotos(): Promise<GalleryPhotoItem[]> {
   const rows = await db
     .select()
     .from(eventPhotos)
-    .orderBy(asc(eventPhotos.sortOrder));
+    .orderBy(desc(eventPhotos.sortOrder));
 
   const eventIds = [...new Set(rows.flatMap((row) => row.eventId ?? []))];
   const allEvents = eventIds.length
@@ -104,6 +108,7 @@ export async function listAdminGalleryPhotos(): Promise<GalleryPhotoItem[]> {
           slug: events.slug,
           title: events.title,
           startsAt: events.startsAt,
+          status: events.status,
         })
         .from(events)
         .where(inArray(events.id, eventIds))
@@ -117,24 +122,19 @@ export async function listAdminGalleryPhotos(): Promise<GalleryPhotoItem[]> {
     items.push({
       ...mapRow(row),
       eventSlug: event?.slug ?? null,
-      eventTitle: event?.title ?? row.customEventName!,
+      eventTitle: row.customEventName ?? event?.title ?? "",
       eventStartsAt: event?.startsAt.toISOString() ?? null,
+      eventStatus: event?.status ?? null,
       galleryKey: event ? `event:${event.id}` : `custom:${row.customEventName}`,
     });
   }
 
-  items.sort((a, b) => {
-    const byEvent =
-      (b.eventStartsAt ? new Date(b.eventStartsAt).getTime() : 0) -
-      (a.eventStartsAt ? new Date(a.eventStartsAt).getTime() : 0);
-    if (byEvent !== 0) return byEvent;
-    return a.sortOrder - b.sortOrder;
-  });
+  items.sort((a, b) => b.sortOrder - a.sortOrder);
 
   return items;
 }
 
-/** Public gallery: photos from non-draft events, newest events first. */
+/** Public gallery: photos from non-draft events, newest uploads first. */
 export async function listGalleryPhotos(): Promise<GalleryPhotoItem[]> {
   const db = getDb();
   if (!db) return [];
@@ -152,7 +152,7 @@ export async function listGalleryPhotos(): Promise<GalleryPhotoItem[]> {
         inArray(events.status, ["past", "published"]),
       ),
     )
-    .orderBy(desc(events.startsAt), asc(eventPhotos.sortOrder));
+    .orderBy(desc(eventPhotos.sortOrder));
 
   const items: GalleryPhotoItem[] = [];
   for (const row of rows) {
@@ -165,20 +165,14 @@ export async function listGalleryPhotos(): Promise<GalleryPhotoItem[]> {
     items.push({
       ...mapRow(photo),
       eventSlug: event?.slug ?? null,
-      eventTitle: event?.title ?? photo.customEventName!,
+      eventTitle: photo.customEventName ?? event?.title ?? "",
       eventStartsAt: event?.startsAt.toISOString() ?? null,
+      eventStatus: event?.status ?? null,
       galleryKey,
     });
   }
 
-  // Keep photos grouped by event order (newest event first).
-  items.sort((a, b) => {
-    const byEvent =
-      (b.eventStartsAt ? new Date(b.eventStartsAt).getTime() : 0) -
-      (a.eventStartsAt ? new Date(a.eventStartsAt).getTime() : 0);
-    if (byEvent !== 0) return byEvent;
-    return a.sortOrder - b.sortOrder;
-  });
+  items.sort((a, b) => b.sortOrder - a.sortOrder);
 
   return items;
 }
