@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useSyncExternalStore } from "react";
+import { NetworkFieldPlaceholder } from "./NetworkFieldPlaceholder";
 
 const networkFieldImport = () =>
   import("./NetworkField").then((module) => module.NetworkField);
@@ -11,7 +12,10 @@ if (typeof window !== "undefined") {
   void import("./NetworkField");
 }
 
-const NetworkField = dynamic(networkFieldImport, { ssr: false });
+const NetworkField = dynamic(networkFieldImport, {
+  ssr: false,
+  loading: () => <NetworkFieldPlaceholder />,
+});
 
 function subscribe() {
   return () => {};
