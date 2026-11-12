@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { requireAdminPage } from "@/lib/admin-guard";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
@@ -7,7 +8,7 @@ import { isTeamDbReady, listAdminTeam } from "@/lib/team";
 
 export const metadata: Metadata = { title: "Admin · Team" };
 
-export default async function AdminTeamPage() {
+async function AdminTeamContent() {
   await requireAdminPage();
   const dbReady = isTeamDbReady();
   const rows = dbReady ? await listAdminTeam() : [];
@@ -58,5 +59,19 @@ export default async function AdminTeamPage() {
         </ul>
       )}
     </Container>
+  );
+}
+
+export default function AdminTeamPage() {
+  return (
+    <Suspense
+      fallback={
+        <Container className="py-12">
+          <p className="text-sm text-mute">Loading team…</p>
+        </Container>
+      }
+    >
+      <AdminTeamContent />
+    </Suspense>
   );
 }

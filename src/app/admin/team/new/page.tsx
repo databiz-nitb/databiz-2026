@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { redirect } from "next/navigation";
 import { Container } from "@/components/ui/Container";
@@ -7,7 +8,7 @@ import { isTeamDbReady } from "@/lib/team";
 
 export const metadata: Metadata = { title: "Admin · New team member" };
 
-export default async function AdminNewTeamMemberPage() {
+async function AdminNewTeamMemberContent() {
   await requireAdminPage();
   if (!isTeamDbReady()) redirect("/admin/team");
   return (
@@ -19,5 +20,19 @@ export default async function AdminNewTeamMemberPage() {
         <TeamEditorForm />
       </div>
     </Container>
+  );
+}
+
+export default function AdminNewTeamMemberPage() {
+  return (
+    <Suspense
+      fallback={
+        <Container className="py-12">
+          <p className="text-sm text-mute">Loading team editor…</p>
+        </Container>
+      }
+    >
+      <AdminNewTeamMemberContent />
+    </Suspense>
   );
 }

@@ -7,6 +7,8 @@ import { getAdminTeamMember, isTeamDbReady } from "@/lib/team";
 
 type Props = { params: Promise<{ id: string }> };
 
+export const instant = false;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const member = await getAdminTeamMember(id);

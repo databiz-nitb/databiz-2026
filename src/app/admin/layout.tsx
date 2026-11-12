@@ -6,6 +6,8 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { DeskProvider } from "@/components/admin/DeskContext";
 import { AdminShellSkeleton } from "@/components/ui/PageLoader";
 
+export const instant = false;
+
 async function AdminShell({ children }: { children: React.ReactNode }) {
   await connection();
   const session = await requireDesk();
