@@ -182,7 +182,7 @@ export default function BrochurePage() {
           <Reveal>
             <DeskLabel index="05">Competitions</DeskLabel>
             <h2 className="mt-4 max-w-2xl font-display text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-[0.95] tracking-[-0.04em]">
-              Datathon &amp; Visathon
+              Datathon &amp; Vizathon
             </h2>
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-mute">
               Flagship analytics challenges judged by faculty and industry —
