@@ -308,18 +308,27 @@ export async function registerForEvent(
   _prev: ActionResult | undefined,
   formData: FormData,
 ): Promise<ActionResult> {
+  const session = await getSession();
+  if (!session) {
+    return {
+      ok: false,
+      error: "Please sign in to your DataBiz account before registering.",
+    };
+  }
+
+  const sessionEmail = session.user.email.trim().toLowerCase();
+  if (!sessionEmail) {
+    return { ok: false, error: "Your account does not have a valid email." };
+  }
+
   const blocked = requireEventsDb();
   if (blocked) return blocked;
-
-  const session = await getSession();
-  const sessionEmail = session?.user.email?.trim().toLowerCase() || "";
 
   const parsed = rsvpFields.safeParse({
     eventId: formData.get("eventId"),
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
-    // Logged-in RSVPs always use the session email so the form default sticks.
-    email: sessionEmail || formData.get("email"),
+    email: sessionEmail,
     year: formData.get("year"),
     branch: formData.get("branch"),
   });
@@ -420,7 +429,7 @@ export async function registerForEvent(
       email,
       year: parsed.data.year,
       branch: parsed.data.branch,
-      userId: session?.user.id ?? null,
+      userId: session.user.id,
       status: "registered" as const,
       ticketCode,
       checkedInAt: null as Date | null,

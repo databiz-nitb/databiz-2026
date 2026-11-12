@@ -40,7 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: event.title, description: event.summary };
 }
 
-async function EventContent({ slug }: { slug: string }) {
+async function EventContent({ params }: Props) {
+  const { slug } = await params;
   await connection();
   const event = await getEventBySlug(slug);
   if (!event) notFound();
@@ -104,6 +105,7 @@ async function EventContent({ slug }: { slug: string }) {
                 width={1200}
                 height={675}
                 sizes="(min-width: 1024px) 44rem, 100vw"
+                loading="eager"
                 className="mb-10 h-auto w-full rounded-[var(--radius-lg)] border border-line"
               />
             ) : null}
@@ -200,7 +202,7 @@ async function EventContent({ slug }: { slug: string }) {
                   </dd>
                 </div>
               ) : null}
-              {!isPast && event.meetingUrl ? (
+              {!isPast && session && event.meetingUrl ? (
                 <div>
                   <dt className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-steel">
                     Meeting link
@@ -237,22 +239,38 @@ async function EventContent({ slug }: { slug: string }) {
               <div className="border border-line bg-paper-elevated p-5">
                 <DeskLabel tone="signal">RSVP</DeskLabel>
                 <div className="mt-4">
-                  <EventRsvpForm
-                    eventId={event.id ?? event.slug}
-                    eventTitle={event.title}
-                    eventSlug={event.slug}
-                    defaults={defaults}
-                    lockedEmail={lockedEmail}
-                    existingTicket={
-                      existingTicket
-                        ? {
-                            id: existingTicket.id,
-                            ticketCode: existingTicket.ticketCode,
-                          }
-                        : null
-                    }
-                    databaseReady={databaseReady}
-                  />
+                  {session ? (
+                    <EventRsvpForm
+                      eventId={event.id ?? event.slug}
+                      eventTitle={event.title}
+                      eventSlug={event.slug}
+                      defaults={defaults}
+                      lockedEmail={lockedEmail}
+                      existingTicket={
+                        existingTicket
+                          ? {
+                              id: existingTicket.id,
+                              ticketCode: existingTicket.ticketCode,
+                            }
+                          : null
+                      }
+                      databaseReady={databaseReady}
+                    />
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-sm leading-relaxed text-steel">
+                        Sign in with your DataBiz account to register for this
+                        event.
+                      </p>
+                      <Button
+                        href={`/login?next=${encodeURIComponent(`/events/${event.slug}`)}`}
+                        variant="signal"
+                        className="w-full"
+                      >
+                        Sign in to register
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -264,15 +282,13 @@ async function EventContent({ slug }: { slug: string }) {
 }
 
 export default async function EventPage({ params }: Props) {
-  const { slug } = await params;
-
   return (
     <Suspense
       fallback={
         <PageHero index="…" label="Event" title="Loading event details" />
       }
     >
-      <EventContent slug={slug} />
+      <EventContent params={params} />
     </Suspense>
   );
 }

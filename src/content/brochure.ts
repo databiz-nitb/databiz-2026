@@ -209,16 +209,14 @@ export const brochure = {
         "Offline promotion during DataBiz events",
         "Traction / registrations toward your platform",
       ],
-      fromYou: [
-        "Affiliate-style charges based on unique registrations / data",
-      ],
+      fromYou: ["Affiliate-style charges based on unique registrations / data"],
     },
   ],
   contacts: [
-    { name: "Ankita Tyagi", phone: "82699 20573" },
-    { name: "Ayush Ukey", phone: "83194 06057" },
-    { name: "Ankita", phone: "91220 48700" },
-    { name: "Pankaj Soni", phone: "96800 32837" },
+    { name: "Aayushi Modi", phone: "+91 77480 82572" },
+    { name: "Sourabh Yadav", phone: "+91 78794 47006" },
+    { name: "Talla Adarsh", phone: "+91 93905 42900" },
+    { name: "Manu Jain", phone: "+91 88170 22214" },
   ],
   pdfHref: "/brochure/databiz-sponsorship.pdf",
   media: {

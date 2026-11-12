@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { Container } from "@/components/ui/Container";
 import { EpisodeEditorForm } from "@/components/admin/EpisodeEditorForm";
 import {
@@ -9,9 +10,14 @@ import {
 
 export const metadata: Metadata = { title: "Admin · New episode" };
 
-export default async function AdminNewEpisodePage() {
-  if (!isEpisodesDbReady()) redirect("/admin/show");
+async function EpisodeEditor() {
   const events = await listEventsForEpisodeLink();
+
+  return <EpisodeEditorForm events={events} />;
+}
+
+export default function AdminNewEpisodePage() {
+  if (!isEpisodesDbReady()) redirect("/admin/show");
 
   return (
     <Container className="py-12">
@@ -22,7 +28,15 @@ export default async function AdminNewEpisodePage() {
         Create a DataBrew draft, then publish when the embed is ready.
       </p>
       <div className="mt-10 max-w-3xl">
-        <EpisodeEditorForm events={events} />
+        <Suspense
+          fallback={
+            <p className="text-sm text-mute" role="status">
+              Loading episode form…
+            </p>
+          }
+        >
+          <EpisodeEditor />
+        </Suspense>
       </div>
     </Container>
   );
